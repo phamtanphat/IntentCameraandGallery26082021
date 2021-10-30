@@ -24,7 +24,9 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding mBinding;
     int REQUEST_CODE_CAMERA = 123;
+    int REQUEST_CODE_GALLERY = 456;
     ActivityResultLauncher<Intent> mResultCamera;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         mResultCamera = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-                if (result.getResultCode() == RESULT_OK){
+                if (result.getResultCode() == RESULT_OK) {
                     Bitmap bitmap = (Bitmap) result.getData().getExtras().get("data");
                     mBinding.imageView.setImageBitmap(bitmap);
                 }
@@ -45,14 +47,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Kiểm coi quyền camera đã được duyệt hay chưa
-                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(
                             MainActivity.this,
                             new String[]{Manifest.permission.CAMERA},
                             REQUEST_CODE_CAMERA);
-                }else{
+                } else {
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     mResultCamera.launch(intent);
+                }
+            }
+        });
+
+        mBinding.buttonGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            MainActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            REQUEST_CODE_GALLERY
+                    );
                 }
             }
         });
@@ -61,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_CAMERA){
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == REQUEST_CODE_CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 mResultCamera.launch(intent);
             }
